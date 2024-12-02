@@ -18,4 +18,3 @@
 ## Miner Advice
 
 [Miner Advice](docs/miner_advice.md)
-# G.O.D

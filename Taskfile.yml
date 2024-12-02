@@ -1,0 +1,40 @@
+version: "3"
+
+tasks:
+
+  config:
+    cmds:
+      - python -m core.create_config
+
+  miner-config:
+    cmds:
+      - python -m core.create_config --miner
+
+  miner:
+    cmds:
+      - ENV=DEV uvicorn miner.server:app --reload --host 0.0.0.0 --port 7999 --env-file .1.env --log-level debug
+
+  dev_setup:
+    cmds:
+      - docker compose --env-file .vali.env -f docker-compose.yml -f docker-compose.dev.yml up -d --build
+
+  validator_dev:
+    cmds:
+      - ./utils/start_validator.sh
+
+  autoupdates:
+    cmds:
+      - pm2 delete autoupdater || true
+      - pm2 start "python utils/run_validator_auto_update.py" --name autoupdater
+
+  validator:
+    cmds:
+      - docker compose --env-file .vali.env up -d --build
+      - docker compose --env-file .vali.env -f docker-compose.yml run dbmate --wait up
+      - pm2 delete validator || true
+      - ./utils/start_validator.sh
+
+  install:
+    cmds:
+      - source $HOME/.venv/bin/activate
+      - pip install -e .
